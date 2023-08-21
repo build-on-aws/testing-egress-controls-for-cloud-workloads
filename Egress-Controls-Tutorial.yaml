@@ -26,13 +26,6 @@ Parameters:
   AvailabilityZone1Selection:
     Description: Availability Zone 1
     Type: AWS::EC2::AvailabilityZone::Name
-  MyAssetsBucketName:
-    Description: Assets bucket name
-    Type: String
-  MyAssetsBucketPrefix:
-    Description: Assets bucket prefix
-    Type: String
-
 
   LatestAmiId:
     Description: Latest EC2 AMI from Systems Manager Parameter Store
@@ -136,11 +129,6 @@ Resources:
       Tags:
         - Key: Name
           Value: EgressVPC-NATGW
-
- 
-
-
-
  
   EgressInstanceRole:
     Type: AWS::IAM::Role
@@ -685,7 +673,7 @@ Resources:
           commands:
             download:
               cwd: /usr/bin
-              command: !Sub "git clone https://github.com/8carroll/testing-egress-controls-for-cloud-workloads.git /usr/bin/"
+              command: !Sub "git clone https://github.com/8carroll/test.git /usr/bin/"
 #            addtargetcmd:
 #              env:
 #                SCANTARG: !Sub "${EgressIP}"
@@ -722,6 +710,8 @@ Resources:
           yum install -y python3 --disablerepo amzn2-core
           yum install -y curl git python-pip
           echo "${EgressIP} testhost.aws" >> /etc/hosts
+#          aws s3 cp s3://${MyAssetsBucketName}/${MyAssetsBucketPrefix}flightsim_2.3.0_linux_64-bit.rpm /tmp
+#          yum install -y /tmp/flightsim_2.3.0_linux_64-bit.rpm
           /usr/bin/aws configure set region ${AWS::Region}
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource TestInstance1 --configsets Scanner_Install --region ${AWS::Region}
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource TestInstance1 --region ${AWS::Region}
