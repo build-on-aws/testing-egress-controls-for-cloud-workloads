@@ -1,11 +1,6 @@
-## My Project
+## Testing Egress Controls for Cloud Workloads
 
-TODO: Fill this README out!
-
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
+The code contained in this repo are for use in the tutorial [Egress Controls for Cloud Workloads - Part 1](https://community.aws/tutorials/egress-controls-for-cloud-workloads).  
 
 ## Security
 
