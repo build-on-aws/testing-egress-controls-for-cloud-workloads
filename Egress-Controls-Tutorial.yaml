@@ -664,29 +664,29 @@ Resources:
   TestInstance1:
     Type: AWS::EC2::Instance
     DependsOn: PrivateRtb1DefaultRoute
-    Metadata:
-      AWS::CloudFormation::Init:
-        configSets:
-          Scanner_Install:
-            - configure_scanner
-        configure_scanner:
-          commands:
-            download:
-              cwd: /usr/bin
-              command: !Sub "git clone https://github.com/8carroll/test.git /usr/bin/"
-#            addtargetcmd:
-#              env:
-#                SCANTARG: !Sub "${EgressIP}"
+#    Metadata:
+#      AWS::CloudFormation::Init:
+#        configSets:
+#          Scanner_Install:
+#            - configure_scanner
+#        configure_scanner:
+#          commands:
+#            download:
 #              cwd: /usr/bin
-#              command: "[ -f /usr/bin/egress-check.sh ] && chmod 755 /usr/bin/egress-check.sh || true"
-          files:
-            /usr/bin/testegress:
-              mode: "000755"
-              content: !Sub |
-                #!/bin/bash
-                #Script to trigger egress-check.sh
-                TESTIP=${EgressIP}
-                bash /usr/bin/egress-check.sh $TESTIP           
+#              command: !Sub "git clone https://github.com/8carroll/test.git /usr/bin/"
+##            addtargetcmd:
+##              env:
+##                SCANTARG: !Sub "${EgressIP}"
+##              cwd: /usr/bin
+##              command: "[ -f /usr/bin/egress-check.sh ] && chmod 755 /usr/bin/egress-check.sh || true"
+#          files:
+#            /usr/bin/testegress:
+#              mode: "000755"
+#              content: !Sub |
+#                #!/bin/bash
+#                #Script to trigger egress-check.sh
+#                TESTIP=${EgressIP}
+#                bash /usr/bin/egress-check.sh $TESTIP           
     Properties:
       ImageId: !Ref LatestAmiId
       SubnetId: !Ref PrivateSubnet1
@@ -709,15 +709,14 @@ Resources:
           amazon-linux-extras enable python3
           yum install -y python3 --disablerepo amzn2-core
           yum install -y curl git python-pip
-          echo "${EgressIP} testhost.aws" >> /etc/hosts
-#          aws s3 cp s3://${MyAssetsBucketName}/${MyAssetsBucketPrefix}flightsim_2.3.0_linux_64-bit.rpm /tmp
-#          yum install -y /tmp/flightsim_2.3.0_linux_64-bit.rpm
-          /usr/bin/aws configure set region ${AWS::Region}
-          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource TestInstance1 --configsets Scanner_Install --region ${AWS::Region}
-          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource TestInstance1 --region ${AWS::Region}
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT15M  
+          git clone https://github.com/8carroll/test.git ~/
+#          echo "${EgressIP} testhost.aws" >> /etc/hosts
+#          /usr/bin/aws configure set region ${AWS::Region}
+#          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource TestInstance1 --configsets Scanner_Install --region ${AWS::Region}
+#          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource TestInstance1 --region ${AWS::Region}
+#    CreationPolicy:
+#      ResourceSignal:
+#        Timeout: PT15M  
 Outputs:
   TestHostSession:
     Description: Start interactive shell on ProtectedSubnet-TestInstance1
