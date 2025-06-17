@@ -32,3 +32,11 @@ To delete all resources created by this workshop:
 1. Navigate to the CloudFormation console
 2. Select the main `Egress-Controls-Tutorial.yaml` stack
 3. Choose "Delete"
+
+## Security
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License. See the LICENSE file.
