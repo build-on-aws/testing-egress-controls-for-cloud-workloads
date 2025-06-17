@@ -48,7 +48,7 @@ function valid_ip()
 
 
 ## declare an array of example domains from TLD's that have high incidence of malicious domains
-declare -a arr=("google.ru" "google.cn" "eth.xyz" "hello.cyou" "ourocean2022.pw" "fedne.ws" "multilanguage.gq" "nosara.surf" "www.cf" "www.ml")
+declare -a arr=("google.ru" "google.cn" "eth.xyz" "a.nic.cyou" "ns1.nic.pw" "a.dns.ws" "a.ns.gq" "a.nic.surf" "a.ns.cf" "a.nic.ml")
 
 # initialize variables for tracking outputs of loop
 TOTAL=0
@@ -92,7 +92,7 @@ let TOTAL++
 RESULT=$(dig +short +timeout=1 controldomain1.botnetlist.firewall.route53resolver.us-east-1.amazonaws.com | tail -1)
 if [ "$RESULT" == "1.2.3.4" ]; then
     echo -e "Resolution of domains on AWS Botnet list    $allowed_high"
-
+    
 else
     echo -e "Resolution of domains on AWS Botnet list    $blocked"
     let SUCCESS++
@@ -103,7 +103,7 @@ let TOTAL++
 RESULT=$(dig +short +timeout=1 controldomain1.malwarelist.firewall.route53resolver.us-east-1.amazonaws.com | tail -1)
 if [ "$RESULT" == "1.2.3.4" ]; then
     echo -e "Resolution of domains on AWS Malware list    $allowed_high"
-
+    
 else
     echo -e "Resolution of domains on AWS Malware list    $blocked"
     let SUCCESS++
@@ -111,10 +111,10 @@ fi
 
 # Test whether AWSManagedDomainsMalwaAWSManagedDomainsAggregateThreatList and AWSManagedDomainsAmazonGuardDutyThreatListreDomainList managed list is being blocked
 let TOTAL++
-RESULT=$(dig +short +timeout=1 controldomain1.aggregatelist.firewall.route53resolver.us-east-1.amazonaws.com | tail -1)
+RESULT=$(dig +short +timeout=1 controldomain2.aggregatelist.firewall.route53resolver.us-east-1.amazonaws.com | tail -1)
 if [ "$RESULT" == "1.2.3.4" ]; then
     echo -e "Resolution of domains on AWS Aggreggate and GuardDuty Threat list    $allowed_high"
-
+    
 else
     echo -e "Resolution of domains on AWS Aggreggate and GuardDuty Threat list    $blocked"
     let SUCCESS++
@@ -130,7 +130,7 @@ let TOTAL++
 RESULT=$(timeout 1 dig @8.8.8.8 +short +timeout=1 www.google.com | tail -1)
 if valid_ip $RESULT; then
     echo -e "Resolution of DNS via Google DNS (8.8.8.8)    $allowed_high"
-
+    
 else
     echo -e "Resolution of DNS via Google DNS (8.8.8.8)     $blocked"
     let SUCCESS++
@@ -153,7 +153,7 @@ fi
 # Test bypass of DNS logging/inspection with DNS over HTTPS (DoH)
 let TOTAL++
 RESULT=$(curl -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=example.com&type=A' --max-time 2 2> /dev/null)
-SUB='"AD":true'
+SUB='"Status":0'
 if  [[ "$RESULT" == *"$SUB"* ]]; then
     echo -e "Resolution of DNS over HTTPS (DoH)     $allowed_high"
 else
@@ -291,7 +291,7 @@ fi
 
 
 
-# Test outbound access over SMB port 445
+# Test outbound access over SMB port 445 
 if ! command -v smbclient &> /dev/null; then
     echo "Missing smbclient utility used to test SMB - to install type \"yum install samba-client\" on Amazon Linux(may require sudo privileges)"
 else
@@ -311,7 +311,32 @@ else
     fi
 fi
 
+echo
+
+echo '*** ANFW NETWORK CONTROLS - GEOGRAPHIC IP FILTERING ***'
+
+# Test traffic to an ITAR country
+let TOTAL++
+RESULT=$(curl -I -s https://www.sld.cu/ --connect-timeout 1 --max-time 2)
+if [ -n "$RESULT" ]; then
+    echo -e "Traffic to/from ITAR Restricted Countries     $allowed_high"
+else
+    echo -e "Traffic to/from ITAR Restricted Countries     $blocked"
+    let SUCCESS++
+fi
+
+# Test traffic to a domain outside of the US or Canada (https://leclaireur.fnac.com/)
+let TOTAL++
+RESULT=$(curl -I -s https://leclaireur.fnac.com/ --connect-timeout 1 --max-time 2)
+if [ -n "$RESULT" ]; then
+    echo -e "Traffic to/from anywhere outside the US or Canada     $allowed_high"
+else
+    echo -e "Traffic to/from anywhere outside the US or Canada     $blocked"
+    let SUCCESS++
+fi
+
 
 echo
 echo -e "Your network controls blocked ${cyan}$SUCCESS${reset} of ${cyan}$TOTAL${reset} tests of egress filtering."
 echo
+
